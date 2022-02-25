@@ -1,5 +1,8 @@
 <?php
+require 'Connect.php';
+require 'Config.php';
 
+$myConnexion = Connect::dbConnect();
 /**
  * 1. Commencez par importer le script SQL disponible dans le dossier SQL.
  * 2. Connectez vous à la base de données blog.
@@ -17,6 +20,20 @@
  */
 
 // TODO Votre code ici.
+$request = $myConnexion->prepare("
+    SELECT article.id,article.title,article.content,categorie.name
+    FROM article
+    INNER JOIN categorie ON article.category_fk = categorie.id
+");
+
+$state = $request->execute();
+if ($state) {
+    foreach ($request->fetchAll() as $value) {
+        echo "<pre>";
+        print_r($value);
+        echo "</pre>";
+    }
+}
 
 
 /**
@@ -24,7 +41,20 @@
  */
 
 // TODO Votre code ici.
+$request = $myConnexion->prepare("
+    SELECT ar.id,ar.title,ar.content,cat.name
+    FROM article as ar
+    INNER JOIN categorie as cat ON ar.category_fk = cat.id
+");
 
+$state = $request->execute();
+if ($state) {
+    foreach ($request->fetchAll() as $value) {
+        echo "<pre>";
+        print_r($value);
+        echo "</pre>";
+    }
+}
 
 /**
  * 5. Ajoutez un utilisateur dans la table utilisateur.
@@ -33,3 +63,34 @@
  */
 
 // TODO Votre code ici.
+$stmt = $myConnexion->prepare("
+    INSERT INTO utilisateur (firstName,lastName,mail,password)
+    VALUES (:firstName,:lastName,:mail,:password)
+");
+
+$firstName = 'Angel';
+$lastName = 'Dehainaut';
+$mail = 'dehainaut.angelique@orange.fr';
+$password = 'azerty';
+
+$stmt->bindParam(':firstName',$firstName);
+$stmt->bindParam(':lastName',$lastName);
+$stmt->bindParam(':mail',$mail);
+$stmt->bindParam(':password',$password);
+
+$stmt->execute();
+
+$request = $myConnexion->prepare("
+    SELECT comm.content,ut.firstName,ut.lastName
+    FROM commentaire as comm
+    LEFT JOIN utilisateur as ut ON comm.user_fk = ut.id
+");
+
+$state = $request->execute();
+if ($state) {
+    foreach ($request->fetchAll() as $value) {
+        echo "<pre>";
+        print_r($value);
+        echo "</pre>";
+    }
+}
